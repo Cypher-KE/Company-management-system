@@ -156,14 +156,14 @@ class DashboardController extends Controller
                     $data['monthlyBill'] = \Auth::user()->monthlyBill();
                     $data['goals'] = Goal::where('created_by', '=', \Auth::user()->creatorId())->where('is_display', 1)->get();
 
-                    //Storage limit
-                    $data['users'] = User::find(\Auth::user()->creatorId());
-                    $data['plan'] = Plan::getPlan(\Auth::user()->show_dashboard());
-                    if ($data['plan']->storage_limit > 0) {
-                        $data['storage_limit'] = ($data['users']->storage_limit / $data['plan']->storage_limit) * 100;
-                    } else {
-                        $data['storage_limit'] = 0;
-                    }
+                   //Storage limit
+$data['users'] = User::find(\Auth::user()->creatorId());
+$data['plan'] = Plan::getPlan(\Auth::user()->show_dashboard());
+if ($data['plan'] && $data['plan']->storage_limit > 0) {
+    $data['storage_limit'] = ($data['users']->storage_limit / $data['plan']->storage_limit) * 100;
+} else {
+    $data['storage_limit'] = 0;
+}
 
                     // dd($data);
                     return view('dashboard.account-dashboard', $data);
@@ -180,7 +180,8 @@ class DashboardController extends Controller
         }
 
 
-    public function project_dashboard_index()
+ 
+        public function project_dashboard_index()
     {
         $user = Auth::user();
 
@@ -508,9 +509,8 @@ class DashboardController extends Controller
         }
     }
 
-    public function clientView()
+  public function clientView()
     {
-
         if (Auth::check()) {
             if (Auth::user()->type == 'super admin') {
                 $user = \Auth::user();
@@ -519,14 +519,18 @@ class DashboardController extends Controller
                 $user['total_orders'] = Order::total_orders();
                 $user['total_orders_price'] = Order::total_orders_price();
                 $user['total_plan'] = Plan::total_plan();
-                if(!empty(Plan::most_purchese_plan()))
-                {
-                    $plan = Plan::find(Plan::most_purchese_plan()['plan']);
-                    $user['most_purchese_plan'] = $plan->name;
-                }
-                else
-                {
-                    $user['most_purchese_plan'] = '-';
+                
+                // Fetch most purchased plan safely
+                $mostPurchased = Plan::most_purchese_plan();
+                $user['most_purchese_plan'] = '-';
+
+                if (!empty($mostPurchased)) {
+                    $planId = $mostPurchased->plan ?? $mostPurchased['plan'] ?? null;
+                    $plan = Plan::find($planId);
+                    
+                    if ($plan) {
+                        $user['most_purchese_plan'] = $plan->name;
+                    }
                 }
 
                 $chartData = $this->getOrderChart(['duration' => 'week']);
@@ -546,9 +550,11 @@ class DashboardController extends Controller
                 $y = date("Y");
                 $format = 'Y-m-d';
                 $user = \Auth::user();
+                
                 if (\Auth::user()->can('View Task')) {
                     $company_setting = Utility::settings();
                 }
+                
                 $arrTemp = [];
                 for ($i = 0; $i <= 7 - 1; $i++) {
                     $date = date($format, mktime(0, 0, 0, $m, ($de - $i), $y));
@@ -584,9 +590,7 @@ class DashboardController extends Controller
                 $arrCount['deal'] = !empty($user->clientDeals) ? $user->clientDeals->count() : 0;
 
                 if (!empty($client_deal->first())) {
-
                     $arrCount['task'] = DealTask::whereIn('deal_id', [$client_deal->first()])->count();
-
                 } else {
                     $arrCount['task'] = 0;
                 }
@@ -617,12 +621,12 @@ class DashboardController extends Controller
                 $completed_project_count = count($completed_project);
                 $project['project_percentage'] = ($allProjectCount != 0) ? intval(($completed_project_count / $allProjectCount) * 100) : 0;
                 $project['project_task_percentage'] = ($total_project_task != 0) ? intval(($complete_task / $total_project_task) * 100) : 0;
+                
                 $invoice = [];
                 $top_due_invoice = [];
                 $invoice['total_invoice'] = 5;
                 $complete_invoice = 0;
                 $total_due_amount = 0;
-                $top_due_invoice = array();
                 $pay_amount = 0;
 
                 if (Auth::user()->type == 'client') {
@@ -631,16 +635,15 @@ class DashboardController extends Controller
                     } else {
                         $project['client_project_budget_due_per'] = 0;
                     }
-
                 }
 
                 $top_tasks = Auth::user()->created_top_due_task();
                 $users['staff'] = User::where('created_by', '=', Auth::user()->creatorId())->count();
                 $users['user'] = User::where('created_by', '=', Auth::user()->creatorId())->where('type', '!=', 'client')->count();
                 $users['client'] = User::where('created_by', '=', Auth::user()->creatorId())->where('type', '=', 'client')->count();
+                
                 $project_status = array_values(Project::$project_status);
                 $projectData = \App\Models\Project::getProjectStatus();
-
                 $taskData = \App\Models\TaskStage::getChartData();
 
                 return view('dashboard.clientView', compact('calenderTasks', 'arrErr', 'arrCount', 'chartData', 'project', 'invoice', 'top_tasks', 'top_due_invoice', 'users', 'project_status', 'projectData', 'taskData', 'transdate', 'currentYear'));

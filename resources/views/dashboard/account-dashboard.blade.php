@@ -511,10 +511,13 @@
                 <div class="col-xxl-5">
                     <div class="card" style="height: 370px">
                         <div class="card-header">
-                            <h5>{{__('Storage Limit')}}
-                                    {{--                                        <span class="float-end text-muted">{{__('Year').' - '.$currentYear}}</span>--}}
-                                <small class="float-end text-muted">{{ $users->storage_limit . 'MB' }} / {{ $plan->storage_limit . 'MB' }}</small>
-                            </h5>
+                            <h5>{{ __('Storage Limit') }}
+    {{-- <span class="float-end text-muted">{{__('Year').' - '.$currentYear}}</span> --}}
+    
+    <small class="float-end text-muted">
+        {{ $users ? $users->storage_limit : 0 }}MB / {{ $plan ? $plan->storage_limit : 0 }}MB
+    </small>
+</h5>
                         </div>
                         <div class="card-body">
                             <div id="limit-chart"></div>

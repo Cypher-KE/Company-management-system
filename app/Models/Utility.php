@@ -4009,19 +4009,30 @@ class Utility extends Model
 
     public static function colorset()
     {
-        if (\Auth::check()) {
-            if (\Auth::user()->type == 'super admin') {
-                $user = \Auth::user();
+       if (\Auth::check()) {
 
-                $setting = DB::table('settings')->where('created_by', $user->id)->pluck('value', 'name')->toArray();
+    $user = \Auth::user();
 
-            } else {
-                $setting = DB::table('settings')->where('created_by', \Auth::user()->creatorId())->pluck('value', 'name')->toArray();
-            }
-        } else {
-            $user = User::where('type', 'super admin')->first();
-            $setting = DB::table('settings')->where('created_by', $user->id)->pluck('value', 'name')->toArray();
-        }
+    if ($user->type == 'super admin') {
+        $createdBy = $user->id;
+    } else {
+        $createdBy = $user->creatorId();
+    }
+
+} else {
+
+    $user = User::where('type', 'super admin')->first();
+    $createdBy = $user ? $user->id : null;
+}
+
+$setting = [];
+
+if ($createdBy) {
+    $setting = DB::table('settings')
+        ->where('created_by', $createdBy)
+        ->pluck('value', 'name')
+        ->toArray();
+}
 
         if (!isset($setting['color'])) {
             $setting = Utility::settings();

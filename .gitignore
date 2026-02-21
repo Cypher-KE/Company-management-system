@@ -1,4 +1,55 @@
+# IDEs and Editors
 /.idea
 /.vscode
+
+# Dependencies
+/node_modules
+/vendor
+
+# Environment variables (Crucial for security!)
+.env
+.env.backup
+.env.production
+
+# Compiled assets / Public directories
+/public/build
+/public/hot
+/public/storage
+
+# Storage and Caches
+/storage/*.key
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/storage/logs/*
+!.gitkeep
+
+# Testing and Coverage
+.phpunit.result.cache
+/server.php
+/phpunit.xml
+
+# Log files
+npm-debug.log
+yarn-error.log
+yarn.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Homestead / Vagrant
+Homestead.json
+Homestead.yaml
+Vagrantfile
+.vagrant
+
+# Specific ignores you had
+/vendor/srmklive/paypal/tests/Mocks/samples/sample.pdf
 /vendor/srmklive/paypal/tests/Mocks/samples/sample2.pdf
-/vendor/srmklive/paypal/tests/Mocks/samples/sample.pdf 
